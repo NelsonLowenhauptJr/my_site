@@ -1,0 +1,15 @@
+services:
+  nelson-site:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nelson-welcome-tech-site
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT}:80"
+    networks:
+      - nelson_site_net
+
+networks:
+  nelson_site_net:
+    driver: bridge

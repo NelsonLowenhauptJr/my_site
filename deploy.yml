@@ -1,0 +1,69 @@
+name: My site Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - dev
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-site-pessoal
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on:
+      - self-hosted
+      - site-pessoal
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate project files
+        run: |
+          set -e
+
+          echo "=== Validando arquivos principais ==="
+          test -f Dockerfile
+          test -f docker-compose.yml
+          test -d src
+          test -f docker/nginx.conf
+
+          echo "OK"
+
+      - name: Deploy files to /opt/site-pessoal
+        run: |
+          set -e
+
+          echo "=== Sincronizando arquivos ==="
+
+          rsync -av --delete \
+            --exclude ".git" \
+            --exclude ".github" \
+            --exclude "node_modules" \
+            --exclude "__pycache__" \
+            ./ /opt/site-pessoal/
+
+      - name: Rebuild and restart containers
+        run: |
+          set -e
+
+          echo "=== Subindo site ==="
+          cd /opt/site-pessoal
+
+          docker compose up -d --build
+
+      - name: Validate deployment
+        run: |
+          set -e
+
+          echo "=== Status dos containers ==="
+          cd /opt/site-pessoal
+          docker compose ps
+
+          echo
+          echo "=== Testando site ==="
+          curl -fsSI http://127.0.0.1:8091/jr/
