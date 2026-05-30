@@ -50,11 +50,6 @@ jobs:
           echo "=== Preparando diretorio de deploy ==="
           mkdir -p /opt/site-pessoal
 
-          if [ ! -f /opt/site-pessoal/.env ]; then
-            cp .env.example /opt/site-pessoal/.env
-            echo ".env criado a partir de .env.example"
-          fi
-
       - name: Deploy files to /opt/site-pessoal
         run: |
           set -euo pipefail
@@ -65,9 +60,15 @@ jobs:
             --exclude ".git" \
             --exclude ".github" \
             --exclude ".codex" \
+            --exclude ".env" \
             --exclude "node_modules" \
             --exclude "__pycache__" \
             ./ /opt/site-pessoal/
+
+          if [ ! -f /opt/site-pessoal/.env ]; then
+            cp .env.example /opt/site-pessoal/.env
+            echo ".env criado a partir de .env.example"
+          fi
 
       - name: Rebuild and restart containers
         run: |
