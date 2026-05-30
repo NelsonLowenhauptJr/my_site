@@ -1,0 +1,94 @@
+name: Deploy site pessoal
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-site-pessoal
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    permissions:
+      contents: read
+    runs-on:
+      - self-hosted
+      - site-pessoal
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate project files
+        run: |
+          set -euo pipefail
+
+          echo "=== Validando arquivos principais ==="
+          test -f Dockerfile
+          test -f docker-compose.yml
+          test -d src
+          test -f src/index.html
+          test -f docker/nginx.conf
+          test -f .env.example
+
+          echo "=== Validando dependencias do runner ==="
+          command -v docker
+          docker compose version
+          command -v rsync
+          command -v curl
+
+          echo "OK"
+
+      - name: Prepare target directory
+        run: |
+          set -euo pipefail
+
+          echo "=== Preparando diretorio de deploy ==="
+          mkdir -p /opt/site-pessoal
+
+          if [ ! -f /opt/site-pessoal/.env ]; then
+            cp .env.example /opt/site-pessoal/.env
+            echo ".env criado a partir de .env.example"
+          fi
+
+      - name: Deploy files to /opt/site-pessoal
+        run: |
+          set -euo pipefail
+
+          echo "=== Sincronizando arquivos ==="
+
+          rsync -av --delete \
+            --exclude ".git" \
+            --exclude ".github" \
+            --exclude ".codex" \
+            --exclude "node_modules" \
+            --exclude "__pycache__" \
+            ./ /opt/site-pessoal/
+
+      - name: Rebuild and restart containers
+        run: |
+          set -euo pipefail
+
+          echo "=== Subindo site ==="
+          cd /opt/site-pessoal
+
+          test -f .env
+          docker compose config >/dev/null
+          docker compose up -d --build
+
+      - name: Validate deployment
+        run: |
+          set -euo pipefail
+
+          echo "=== Status dos containers ==="
+          cd /opt/site-pessoal
+          docker compose ps
+
+          echo
+          echo "=== Testando site ==="
+          curl -fsSI --retry 5 --retry-connrefused --retry-delay 2 \
+            http://127.0.0.1:8091/jr/
