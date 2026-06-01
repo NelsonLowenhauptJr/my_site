@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <base href="/jr/" />
+
+  <meta name="robots" content="noindex" />
+  <meta name="theme-color" content="#050608" />
+  <title>cobrinha.sh · easter egg</title>
+
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="game-body">
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-orbs" aria-hidden="true">
+    <span class="orb orb-1"></span>
+    <span class="orb orb-2"></span>
+    <span class="orb orb-3"></span>
+  </div>
+
+  <main class="game-wrap">
+    <div class="game-card">
+      <div class="terminal-head">
+        <div class="term-dots" aria-hidden="true">
+          <span class="dot dot-red"></span>
+          <span class="dot dot-amber"></span>
+          <span class="dot dot-green"></span>
+        </div>
+        <span class="term-title">nelson@lowenhaupt: ~/cobrinha.sh</span>
+      </div>
+
+      <div class="game-inner">
+        <p class="game-intro">
+          Você achou o easter egg. Aqui está uma cobrinha feita do zero, sem nenhum copyright
+          para me processar. Use as <strong>setas</strong> ou <strong>WASD</strong>.
+        </p>
+
+        <div class="game-stage">
+          <canvas id="game" width="380" height="380" aria-label="Jogo da cobrinha"></canvas>
+          <div class="game-overlay" id="overlay">
+            <p class="overlay-title" id="overlayTitle">pronto?</p>
+            <p class="overlay-sub" id="overlaySub">enter / toque para começar</p>
+          </div>
+        </div>
+
+        <div class="game-foot">
+          <span class="game-score">pontos: <strong id="score">0</strong></span>
+          <span class="game-score">recorde: <strong id="best">0</strong></span>
+          <a class="game-back" href="./">← voltar pro site</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/game.js" defer></script>
+</body>
+</html>
